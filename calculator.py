@@ -165,5 +165,19 @@ class Calculator:
 if __name__ == "__main__":
     calc = Calculator()
     calc.run()
+
+
+    def popupmsg(msg, title):
+        root = tk.Tk()
+        root.geometry("750x110")
+        root.title(title)
+        label = tk.Label(root, text=msg, )
+        label.pack(side="top", fill="x", pady=30)
+        B1 = tk.Button(root, text="OK, got it, thank you", command=root.destroy)
+        B1.pack()
+        root.mainloop()
+    popupmsg("Credits: CalculatorX made by Omar8345, thank you for choosing CalculatorX. Have a nice day! Don't forget to LIKE THE PROJECT IT YOU 💛 IT!",'Hey, wait!')
     print("Credits:")
     print("CalculatorX made by Omar8345")
+    print("Thank you for choosing CalculatorX")
+    print("Have a nice day! Don't forget to LIKE THE PROJECT IT YOU 💛 IT!")
