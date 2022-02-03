@@ -1,115 +1,169 @@
-import tkinter #import tkinter
-import tkinter.font as font
+import tkinter as tk
+
+LARGE_FONT_STYLE = ("Arial", 40, "bold")
+SMALL_FONT_STYLE = ("Arial", 16)
+DIGITS_FONT_STYLE = ("Arial", 24, "bold")
+DEFAULT_FONT_STYLE = ("Arial", 20)
+
+OFF_WHITE = "#F8FAFF"
+WHITE = "#FFFFFF"
+LIGHT_BLUE = "#CCEDFF"
+LIGHT_GRAY = "#F5F5F5"
+LABEL_COLOR = "#25265E"
 
 
-window = tkinter.Tk() # create tkinter master window
-window.geometry('900x900') # set window size
-window.title('My Calculator') # set window title to my calculator
-myFont = font.Font(size=15) # buttons font size number
+class Calculator:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.geometry("375x667")
+        self.window.resizable(0, 0)
+        self.window.title("CalculatorX")
+
+        self.total_expression = ""
+        self.current_expression = ""
+        self.display_frame = self.create_display_frame()
+
+        self.total_label, self.label = self.create_display_labels()
+
+        self.digits = {
+            7: (1, 1), 8: (1, 2), 9: (1, 3),
+            4: (2, 1), 5: (2, 2), 6: (2, 3),
+            1: (3, 1), 2: (3, 2), 3: (3, 3),
+            0: (4, 2), '.': (4, 1)
+        }
+        self.operations = {"/": "\u00F7", "*": "\u00D7", "-": "-", "+": "+"}
+        self.buttons_frame = self.create_buttons_frame()
+
+        self.buttons_frame.rowconfigure(0, weight=1)
+        for x in range(1, 5):
+            self.buttons_frame.rowconfigure(x, weight=1)
+            self.buttons_frame.columnconfigure(x, weight=1)
+        self.create_digit_buttons()
+        self.create_operator_buttons()
+        self.create_special_buttons()
+        self.bind_keys()
+
+    def bind_keys(self):
+        self.window.bind("<Return>", lambda event: self.evaluate())
+        for key in self.digits:
+            self.window.bind(str(key), lambda event, digit=key: self.add_to_expression(digit))
+
+        for key in self.operations:
+            self.window.bind(key, lambda event, operator=key: self.append_operator(operator))
+
+    def create_special_buttons(self):
+        self.create_clear_button()
+        self.create_equals_button()
+        self.create_square_button()
+        self.create_sqrt_button()
+
+    def create_display_labels(self):
+        total_label = tk.Label(self.display_frame, text=self.total_expression, anchor=tk.E, bg=LIGHT_GRAY,
+                               fg=LABEL_COLOR, padx=24, font=SMALL_FONT_STYLE)
+        total_label.pack(expand=True, fill='both')
+
+        label = tk.Label(self.display_frame, text=self.current_expression, anchor=tk.E, bg=LIGHT_GRAY,
+                         fg=LABEL_COLOR, padx=24, font=LARGE_FONT_STYLE)
+        label.pack(expand=True, fill='both')
+
+        return total_label, label
+
+    def create_display_frame(self):
+        frame = tk.Frame(self.window, height=221, bg=LIGHT_GRAY)
+        frame.pack(expand=True, fill="both")
+        return frame
+
+    def add_to_expression(self, value):
+        self.current_expression += str(value)
+        self.update_label()
+
+    def create_digit_buttons(self):
+        for digit, grid_value in self.digits.items():
+            button = tk.Button(self.buttons_frame, text=str(digit), bg=WHITE, fg=LABEL_COLOR, font=DIGITS_FONT_STYLE,
+                               borderwidth=0, command=lambda x=digit: self.add_to_expression(x))
+            button.grid(row=grid_value[0], column=grid_value[1], sticky=tk.NSEW)
+
+    def append_operator(self, operator):
+        self.current_expression += operator
+        self.total_expression += self.current_expression
+        self.current_expression = ""
+        self.update_total_label()
+        self.update_label()
+
+    def create_operator_buttons(self):
+        i = 0
+        for operator, symbol in self.operations.items():
+            button = tk.Button(self.buttons_frame, text=symbol, bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
+                               borderwidth=0, command=lambda x=operator: self.append_operator(x))
+            button.grid(row=i, column=4, sticky=tk.NSEW)
+            i += 1
+
+    def clear(self):
+        self.current_expression = ""
+        self.total_expression = ""
+        self.update_label()
+        self.update_total_label()
+
+    def create_clear_button(self):
+        button = tk.Button(self.buttons_frame, text="C", bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
+                           borderwidth=0, command=self.clear)
+        button.grid(row=0, column=1, sticky=tk.NSEW)
+
+    def square(self):
+        self.current_expression = str(eval(f"{self.current_expression}**2"))
+        self.update_label()
+
+    def create_square_button(self):
+        button = tk.Button(self.buttons_frame, text="x\u00b2", bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
+                           borderwidth=0, command=self.square)
+        button.grid(row=0, column=2, sticky=tk.NSEW)
+
+    def sqrt(self):
+        self.current_expression = str(eval(f"{self.current_expression}**0.5"))
+        self.update_label()
+
+    def create_sqrt_button(self):
+        button = tk.Button(self.buttons_frame, text="\u221ax", bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
+                           borderwidth=0, command=self.sqrt)
+        button.grid(row=0, column=3, sticky=tk.NSEW)
+
+    def evaluate(self):
+        self.total_expression += self.current_expression
+        self.update_total_label()
+        try:
+            self.current_expression = str(eval(self.total_expression))
+
+            self.total_expression = ""
+        except Exception as e:
+            self.current_expression = "Error"
+        finally:
+            self.update_label()
+
+    def create_equals_button(self):
+        button = tk.Button(self.buttons_frame, text="=", bg=LIGHT_BLUE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
+                           borderwidth=0, command=self.evaluate)
+        button.grid(row=4, column=3, columnspan=2, sticky=tk.NSEW)
+
+    def create_buttons_frame(self):
+        frame = tk.Frame(self.window)
+        frame.pack(expand=True, fill="both")
+        return frame
+
+    def update_total_label(self):
+        expression = self.total_expression
+        for operator, symbol in self.operations.items():
+            expression = expression.replace(operator, f' {symbol} ')
+        self.total_label.config(text=expression)
+
+    def update_label(self):
+        self.label.config(text=self.current_expression[:11])
+
+    def run(self):
+        self.window.mainloop()
 
 
-# we need to create these functions before making buttons or we are not able to use them
-# then we cannot indentify which button was pressed to calculate properly
-
-def checkbutton1():
-    global buttonClicked1
-    buttonClicked1 = not buttonClicked1
-    print('button 1 clicked')
-
-buttonClicked1 = False # set it false before clicking the button
-
-def checkbutton2():
-    global buttonClicked2
-    buttonClicked2 = not buttonClicked2
-    print('button 2 clicked')
-
-buttonClicked2 = False # set it false before clicking the button
-def checkbutton3():
-    global buttonClicked3
-    buttonClicked3 = not buttonClicked3
-    print('button 3 clicked')
-
-buttonClicked3 = False # set it false before clicking the button
-def checkbutton4():
-    global buttonClicked4
-    buttonClicked4 = not buttonClicked4
-    print('button 4 clicked')
-
-buttonClicked4 = False # set it false before clicking the button
-def checkbutton5():
-    global buttonClicked5
-    buttonClicked5 = not buttonClicked5
-    print('button 5 clicked')
-
-buttonClicked5 = False # set it false before clicking the button
-def checkbutton6():
-    global buttonClicked6
-    buttonClicked6 = not buttonClicked6
-    print('button 6 clicked')
-
-buttonClicked6 = False # set it false before clicking the button
-def checkbutton7():
-    global buttonClicked7
-    buttonClicked7 = not buttonClicked7
-    print('button 7 clicked')
-
-buttonClicked7 = False # set it false before clicking the button
-def checkbutton8():
-    global buttonClicked8
-    buttonClicked8 = not buttonClicked8
-    print('button 8 clicked')
-
-buttonClicked8 = False # set it false before clicking the button
-
-def checkbutton9():
-    global buttonClicked9
-    buttonClicked9 = not buttonClicked9
-    print('button 9 clicked')
-
-buttonClicked9 = False # set it false before clicking the button
-
-# create buttons for the calculator tkinter gui
-
-button1=tkinter.Button(window, text="1", width=10, height=10, command=checkbutton1) # create button 1
-button1.grid(row=3,column=1) # arrange button 1 place
-
-button2=tkinter.Button(window, text="2", width=10, height=10, command=checkbutton2) # create button 2
-button2.grid(row=3,column=2) # arrange button 2 place
-
-button3=tkinter.Button(window, text="3", width=10, height=10, command=checkbutton3) # create button 3
-button3.grid(row=3,column=3) # arrange button 3 place
-
-button4=tkinter.Button(window, text="4", width=10, height=10, command=checkbutton4) # create button 4
-button4.grid(row=2,column=1) # arrange button 4 place
-
-button5=tkinter.Button(window, text="5", width=10, height=10, command=checkbutton5) # create button 5
-button5.grid(row=2,column=2) # arrange button 5 place
-
-button6=tkinter.Button(window, text="6", width=10, height=10, command=checkbutton6) # create button 6
-button6.grid(row=2,column=3) # arrange button 6 place
-
-button7=tkinter.Button(window, text="7", width=10, height=10, command=checkbutton7) # create button 7
-button7.grid(row=1,column=1) # arrange button 7 place
-
-button8=tkinter.Button(window, text="8", width=10, height=10, command=checkbutton8) # create button 8
-button8.grid(row=1,column=2) # arrange button 8 place
-
-button9=tkinter.Button(window, text="9", width=10, height=10, command=checkbutton9) # create button 9
-button9.grid(row=1,column=3) # arrange button 9 place
-
-# set buttons font
-button1['font'] = myFont # set button 1 size
-button2['font'] = myFont # set button 2 size
-button3['font'] = myFont # set button 3 size
-button4['font'] = myFont # set button 4 size
-button5['font'] = myFont # set button 5 size
-button6['font'] = myFont # set button 6 size
-button7['font'] = myFont # set button 7 size
-button8['font'] = myFont # set button 8 size
-button9['font'] = myFont # set button 9 size
-
-
-
-
-print("Welcome to the CalculateX Application...")
-window.mainloop()
+if __name__ == "__main__":
+    calc = Calculator()
+    calc.run()
+    print("Credits:")
+    print("CalculatorX made by Omar8345")
