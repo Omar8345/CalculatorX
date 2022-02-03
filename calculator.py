@@ -1,4 +1,5 @@
 import tkinter as tk
+import time
 
 LARGE_FONT_STYLE = ("Arial", 40, "bold")
 SMALL_FONT_STYLE = ("Arial", 16)
@@ -163,21 +164,45 @@ class Calculator:
 
 
 if __name__ == "__main__":
-    calc = Calculator()
-    calc.run()
-
-
     def popupmsg(msg, title):
         root = tk.Tk()
         root.geometry("750x110")
         root.title(title)
         label = tk.Label(root, text=msg, )
         label.pack(side="top", fill="x", pady=30)
-        B1 = tk.Button(root, text="OK, got it, thank you", command=root.destroy)
+        B1 = tk.Button(root, text="OK", command=root.destroy)
         B1.pack()
         root.mainloop()
+    print("Credits:")
+    print("CalculatorX made by Omar8345")
+    print("Thank you for choosing CalculatorX")
+    print("Have a nice day! Don't forget to LIKE THE PROJECT IT YOU 💛 IT!")
+    print("---------------------------------------------------------------")
+    popupmsg('Welcome to CalculatorX. Click OK to open the application', 'CalculatorX')
+    print("Please wait, the application will start soon!")
+    print('-----------------------------------------------------------------')
+    popupmsg("Please wait, CalculatorX will open shortly, thank you", "CalculatorX")
+    print("Please wait.")
+    print("--------------------------------")
+    time.sleep(1)
+    print("Please wait..")
+    print("--------------------------------")
+    time.sleep(1)
+    print('Please wait...')
+    print("--------------------------------")
+    time.sleep(1)
+    print("CalculatorX opening....")
+    print("--------------------------------")
+    time.sleep(1)
+
+    calc = Calculator()
+    calc.run()
+
+
+
     popupmsg("Credits: CalculatorX made by Omar8345, thank you for choosing CalculatorX. Have a nice day! Don't forget to LIKE THE PROJECT IT YOU 💛 IT!",'Hey, wait!')
     print("Credits:")
     print("CalculatorX made by Omar8345")
     print("Thank you for choosing CalculatorX")
     print("Have a nice day! Don't forget to LIKE THE PROJECT IT YOU 💛 IT!")
+    print("--------------------------------------------------------------------------")
